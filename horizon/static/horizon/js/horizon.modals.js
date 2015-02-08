@@ -295,16 +295,14 @@ horizon.addInitFunction(function() {
   horizon.modals.addModalInitFunction(horizon.datatables.validate_button);
   horizon.modals.addModalInitFunction(horizon.utils.loadAngular);
 
-  // Load modals for ajax-modal links.
-  $(document).on('click', '.ajax-modal', function (evt) {
-    var $this = $(this);
-
+  horizon.modals.loadModal = loadModal;
+  function loadModal(url, updateFieldId) {
     // If there's an existing modal request open, cancel it out.
     if (horizon.modals._request && typeof(horizon.modals._request.abort) !== undefined) {
       horizon.modals._request.abort();
     }
 
-    horizon.modals._request = $.ajax($this.attr('href'), {
+    horizon.modals._request = $.ajax(url, {
       beforeSend: function () {
         horizon.modals.modal_spinner(gettext("Loading"));
       },
@@ -330,7 +328,7 @@ horizon.addInitFunction(function() {
         }
       },
       success: function (data, textStatus, jqXHR) {
-        var update_field_id = $this.attr('data-add-to-field'),
+        var update_field_id = updateFieldId,
           modal,
           form;
         modal = horizon.modals.success(data, textStatus, jqXHR);
@@ -342,6 +340,13 @@ horizon.addInitFunction(function() {
         }
       }
     });
+  }
+
+  // Load modals for ajax-modal links.
+  $(document).on('click', '.ajax-modal', function (evt) {
+    var $this = $(this);
+
+    loadModal($this.attr('href'), $this.attr('data-add-to-field'));
     evt.preventDefault();
   });
 
