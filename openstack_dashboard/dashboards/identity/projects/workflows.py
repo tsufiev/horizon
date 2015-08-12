@@ -242,6 +242,13 @@ class UpdateProjectMembersAction(workflows.MembershipAction):
                 for role_id in roles_ids:
                     field_name = self.get_member_field_name(role_id)
                     self.fields[field_name].initial.append(user_id)
+            for role in role_list:
+                field_name = self.get_member_field_name(role.id)
+                field = self.fields[field_name]
+                choices_set = set(field.choices)
+                initial_set = set(field.initial)
+                if choices_set < initial_set:
+                    field.choices = tuple(choices_set | initial_set)
 
     class Meta:
         name = _("Project Members")
